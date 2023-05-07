@@ -1,9 +1,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 
 
 User = get_user_model()
+
+
+MIN_COOCING_TIME = 1
+MIN_AMOUNT_INGREDIENTS = 1
 
 
 class Ingredient(models.Model):
@@ -19,14 +23,14 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(verbose_name='Название', max_length=200)
-    color_hex_code = models.CharField(
-        'Цветовой HEX-код',
+    color = models.CharField(
+        verbose_name='Цвет в HEX',
         unique=True,
         max_length=7,
         validators=[
             RegexValidator(
                 regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                message='Введенное значение не является цветом в формате HEX!'
+                message='Введенное значение не в HEX формате'
             )
         ]
     )
@@ -39,16 +43,28 @@ class Tag(models.Model):
 class Recipe(models.Model):
     name = models.CharField(verbose_name='Название', max_length=200)
     text = models.TextField(verbose_name='Описание')
-    image = models.ImageField(verbose_name='Фото', upload_to='recipes/')
-    cooking_time = models.PositiveSmallIntegerField('Время приготовления')
+    # image = models.ImageField(
+    #     verbose_name='Фото рецепта',
+    #     upload_to='recipes/'
+    # )
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name='Время приготовления',
+        validators=[
+            MinValueValidator(
+                MIN_COOCING_TIME,
+                message=f'Минимальное значение {MIN_COOCING_TIME}'
+            )
+        ]
+    )
     author = models.ForeignKey(
         User,
         related_name='recipes',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Автор публикации'
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='RecipeIngredient',
+        through='IngredientInRecipe',
         related_name='recipes',
         verbose_name='Ингредиенты'
     )
@@ -63,16 +79,27 @@ class Recipe(models.Model):
         return self.name
 
 
-class RecipeIngredient(models.Model):
+class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
+        related_name='ingredientinrecipe',
         on_delete=models.CASCADE
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        verbose_name='',
+        verbose_name='Ингредиент',
+        related_name='ingredientinrecipe',
         on_delete=models.CASCADE
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+        validators=[
+            MinValueValidator(
+                MIN_AMOUNT_INGREDIENTS,
+                message=f'Минимальное значение {MIN_AMOUNT_INGREDIENTS}'
+            )
+        ]
     )
 
 
@@ -86,4 +113,4 @@ class RecipeTag(models.Model):
         Tag,
         verbose_name='Тег',
         on_delete=models.CASCADE
-    )    
+    )
