@@ -84,7 +84,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         if not all([key in validated_data for key in ('tags', 'ingredients')]):
-            raise ValidationError({'Теги и Ингридиенты': 'Что-то не найдено'}) # Нужно информативнее сдедать потом
+            raise ValidationError({'Теги и Ингридиенты': 'Что-то не найдено'})
 
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -147,4 +147,16 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return (
             user.is_authenticated and
             user.shopping_list.filter(recipe=obj).exists()
+        )
+
+
+class RecipeAfterAddToFavititeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            # 'image',
+            'cooking_time'
         )
