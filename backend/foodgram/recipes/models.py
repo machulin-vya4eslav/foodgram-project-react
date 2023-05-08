@@ -17,6 +17,11 @@ class Ingredient(models.Model):
         max_length=50
     )
 
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -35,6 +40,11 @@ class Tag(models.Model):
         ]
     )
     slug = models.SlugField(verbose_name='Слаг', unique=True, max_length=50)
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -75,6 +85,11 @@ class Recipe(models.Model):
         verbose_name='Теги'
     )
 
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+        ordering = ['-id']
+
     def __str__(self):
         return self.name
 
@@ -114,3 +129,59 @@ class RecipeTag(models.Model):
         verbose_name='Тег',
         on_delete=models.CASCADE
     )
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} добавил рецепт {self.recipe} в избранное'
+
+
+class ShoppingList(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_list',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='shopping_list',
+        verbose_name='Рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_list'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} добавил рецепт {self.recipe} в список покупок'

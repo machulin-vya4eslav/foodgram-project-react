@@ -2,7 +2,11 @@ from rest_framework import decorators, viewsets
 from rest_framework.permissions import SAFE_METHODS
 
 from recipes.models import Recipe, Tag
-from .serializers import RecipeWriteSerializer, TagSerializer, RecipeReadSerializer
+from .serializers import (
+    RecipeWriteSerializer,
+    TagSerializer,
+    RecipeReadSerializer
+)
 
 
 class TagViewSet(viewsets.ModelViewSet):
