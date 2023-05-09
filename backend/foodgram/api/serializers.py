@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField
+from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from users.models import Follow
 from recipes.models import (
@@ -40,6 +41,17 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return (
             user.is_authenticated and
             Follow.objects.filter(user=user, author=obj).exists()
+        )
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'name',
+            'measurement_unit'
         )
 
 
@@ -159,7 +171,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
 
 
-class RecipeAfterAddToFavititeSerializer(serializers.ModelSerializer):
+class ShortRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
@@ -169,3 +181,47 @@ class RecipeAfterAddToFavititeSerializer(serializers.ModelSerializer):
             # 'image',
             'cooking_time'
         )
+
+
+class SubscribeSirializer(serializers.ModelSerializer):
+
+    recipes = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes_count',
+            'recipes',
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+
+        return (
+            user.is_authenticated and
+            Follow.objects.filter(user=user, author=obj).exists()
+        )
+
+    def get_recipes_count(self, obj):
+        return Recipe.objects.filter(author=obj).count()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        recipes = Recipe.objects.filter(author=obj)
+
+        if limit:
+            limit = int(limit)
+            recipes = recipes[:limit]
+
+        serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
+
+        return serializer.data

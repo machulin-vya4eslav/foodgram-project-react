@@ -1,4 +1,5 @@
 from djoser.views import UserViewSet
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -8,7 +9,7 @@ from rest_framework.status import (
 )
 
 from .models import User, Follow
-from api.serializers import CustomUserSerializer
+from api.serializers import CustomUserSerializer, SubscribeSirializer
 
 
 class CustomUserViewSet(UserViewSet):
@@ -16,9 +17,9 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
 
     @action(methods=['post', 'delete'], detail=True)
-    def subscribe(self, request, id):
+    def subscribe(self, request, pk):
         user = request.user
-        author = User.objects.get(id=id)
+        author = User.objects.get(id=pk)
 
         if user == author:
             return Response(
@@ -33,7 +34,7 @@ class CustomUserViewSet(UserViewSet):
                     status=HTTP_400_BAD_REQUEST)
 
             Follow.objects.create(user=user, author=author)
-            serializer = CustomUserSerializer(
+            serializer = SubscribeSirializer(
                 author, context={"request": request}
             )
 
@@ -54,3 +55,7 @@ class CustomUserViewSet(UserViewSet):
             obj.delete()
 
             return Response(status=HTTP_204_NO_CONTENT)
+
+    @action(methods=['get'], detail=False)
+    def subscriptions(self, request):
+        pass

@@ -9,18 +9,27 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 
-from recipes.models import Recipe, Tag, Favorite, ShoppingList
+from recipes.models import Recipe, Tag, Favorite, ShoppingList, Ingredient
 from .serializers import (
     RecipeWriteSerializer,
     TagSerializer,
     RecipeReadSerializer,
-    RecipeAfterAddToFavititeSerializer
+    ShortRecipeSerializer,
+    IngredientSerializer
 )
+from .permissions import IsAdminOrReadOnly
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+class IngredientViewSet(viewsets.ModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = (IsAdminOrReadOnly, )
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -48,7 +57,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
             recipe = get_object_or_404(Recipe, id=pk)
             Favorite.objects.create(recipe=recipe, user=user)
-            serializer = RecipeAfterAddToFavititeSerializer(recipe)
+            serializer = ShortRecipeSerializer(recipe)
 
             return Response(serializer.data, status=HTTP_201_CREATED)
 
@@ -76,7 +85,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
             recipe = get_object_or_404(Recipe, id=pk)
             ShoppingList.objects.create(recipe=recipe, user=user)
-            serializer = RecipeAfterAddToFavititeSerializer(recipe)
+            serializer = ShortRecipeSerializer(recipe)
 
             return Response(serializer.data, status=HTTP_201_CREATED)
 

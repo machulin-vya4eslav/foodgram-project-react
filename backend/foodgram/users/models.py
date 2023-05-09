@@ -12,6 +12,16 @@ class User(AbstractUser):
         unique=True
     )
 
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=150
+    )
+
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=150
+    )
+
     REQUIRED_FIELDS = (
         'username',
         'first_name',
@@ -20,7 +30,7 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ['id']
-        verbose_name = 'Пользовател,'
+        verbose_name = 'Пользователь,'
         verbose_name_plural = 'Пользователи'
 
 
