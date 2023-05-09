@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField
 
+from users.models import Follow
 from recipes.models import (
     IngredientInRecipe,
     Recipe,
@@ -18,9 +19,9 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
 
-    # is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -30,7 +31,15 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            # 'is_subscribed'
+            'is_subscribed'
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+
+        return (
+            user.is_authenticated and
+            Follow.objects.filter(user=user, author=obj).exists()
         )
 
 
@@ -115,7 +124,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         many=True,
         source='ingredientinrecipe'
     )
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
 
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()

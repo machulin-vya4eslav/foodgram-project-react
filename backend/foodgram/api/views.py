@@ -80,13 +80,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
             return Response(serializer.data, status=HTTP_201_CREATED)
 
-        obj = ShoppingList.objects.filter(user=user, recipe__id=pk)
+        if request.method == 'DELETE':
+            obj = ShoppingList.objects.filter(user=user, recipe__id=pk)
 
-        if not obj.exists():
-            return Response(
-                {'error': 'Рецепт не добавлен в покупки, нечего удалять'},
-                status=HTTP_400_BAD_REQUEST
-            )
+            if not obj.exists():
+                return Response(
+                    {'error': 'Рецепт не добавлен в покупки, нечего удалять'},
+                    status=HTTP_400_BAD_REQUEST
+                )
 
-        obj.delete()
-        return Response(status=HTTP_204_NO_CONTENT)
+            obj.delete()
+            return Response(status=HTTP_204_NO_CONTENT)
