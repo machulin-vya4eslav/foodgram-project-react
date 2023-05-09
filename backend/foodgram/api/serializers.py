@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField
-from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from users.models import Follow
 from recipes.models import (
