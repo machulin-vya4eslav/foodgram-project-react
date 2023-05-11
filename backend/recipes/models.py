@@ -117,6 +117,14 @@ class IngredientInRecipe(models.Model):
         ]
     )
 
+    def __str__(self) -> str:
+        return (f'Ингредиент {self.ingredient.name} '
+                f'в рецепте {self.recipe.name} - '
+                f'{self.amount}{self.ingredient.measurement_unit}')
+
+    class Meta:
+        verbose_name = 'Ингридиент в рецепте'
+        verbose_name_plural = 'Ингридиенты в рецепте'
 
 class RecipeTag(models.Model):
     recipe = models.ForeignKey(
