@@ -2,24 +2,33 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+MAX_LENGTH_EMAIL = 254
+MAX_LENGTH_FIRST_AND_LAST_NAME = 150
+
+
 class User(AbstractUser):
+    """
+    Переопределенный класс пользователя.
+
+    Позволяет авторизовываться по email.
+    """
 
     USERNAME_FIELD = 'email'
 
     email = models.EmailField(
         verbose_name='email',
-        max_length=254,
+        max_length=MAX_LENGTH_EMAIL,
         unique=True
     )
 
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=150
+        max_length=MAX_LENGTH_FIRST_AND_LAST_NAME
     )
 
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=150
+        max_length=MAX_LENGTH_FIRST_AND_LAST_NAME
     )
 
     REQUIRED_FIELDS = (
@@ -35,6 +44,11 @@ class User(AbstractUser):
 
 
 class Follow(models.Model):
+    """
+    Модель для хранения информации о подписчиках.
+
+    Связывает пользователя и авторов, на которых он подписан.
+    """
     user = models.ForeignKey(
         User,
         related_name='follower',

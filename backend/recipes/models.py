@@ -9,12 +9,24 @@ User = get_user_model()
 MIN_COOCING_TIME = 1
 MIN_AMOUNT_INGREDIENTS = 1
 
+MAX_LENGTH_NAME = 200
+MAX_LENGTH_TAG_SLUG = 50
+MAX_LENGTH_MEASUREMENT_UNIT = 50
+MAX_LENGTH_HEX_COLOR = 8
+
 
 class Ingredient(models.Model):
-    name = models.CharField(verbose_name='Название', max_length=200)
+    """
+    Модель ингредиентов.
+    """
+
+    name = models.CharField(
+        verbose_name='Название',
+        max_length=MAX_LENGTH_NAME
+    )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
-        max_length=50
+        max_length=MAX_LENGTH_MEASUREMENT_UNIT
     )
 
     class Meta:
@@ -27,11 +39,18 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(verbose_name='Название', max_length=200)
+    """
+    Модель тегов.
+    """
+
+    name = models.CharField(
+        verbose_name='Название',
+        max_length=MAX_LENGTH_NAME
+    )
     color = models.CharField(
         verbose_name='Цвет в HEX',
         unique=True,
-        max_length=7,
+        max_length=MAX_LENGTH_HEX_COLOR,
         validators=[
             RegexValidator(
                 regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
@@ -39,7 +58,11 @@ class Tag(models.Model):
             )
         ]
     )
-    slug = models.SlugField(verbose_name='Слаг', unique=True, max_length=50)
+    slug = models.SlugField(
+        verbose_name='Слаг',
+        unique=True,
+        max_length=MAX_LENGTH_TAG_SLUG
+    )
 
     class Meta:
         verbose_name = 'Тег'
@@ -51,7 +74,14 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    name = models.CharField(verbose_name='Название', max_length=200)
+    """
+    Модель рецептов.
+    """
+
+    name = models.CharField(
+        verbose_name='Название',
+        max_length=MAX_LENGTH_NAME
+    )
     text = models.TextField(verbose_name='Описание')
     image = models.ImageField(
         verbose_name='Фото рецепта',
@@ -85,6 +115,10 @@ class Recipe(models.Model):
         verbose_name='Теги'
     )
 
+    created = models.DateTimeField(
+        'Дата добавления', auto_now_add=True
+    )
+
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
@@ -95,6 +129,10 @@ class Recipe(models.Model):
 
 
 class IngredientInRecipe(models.Model):
+    """
+    Модель для связи ингредиентов и рецептов.
+    """
+
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
@@ -126,7 +164,12 @@ class IngredientInRecipe(models.Model):
         verbose_name = 'Ингридиент в рецепте'
         verbose_name_plural = 'Ингридиенты в рецепте'
 
+
 class RecipeTag(models.Model):
+    """
+    Модель для связи тегов и рецептов.
+    """
+
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
@@ -140,6 +183,13 @@ class RecipeTag(models.Model):
 
 
 class Favorite(models.Model):
+    """
+    Модель для избранного.
+
+    Связывает пользователя и рецепт, позволяет хранить информацию
+    о добавлении в избранное рецепта.
+    """
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -168,6 +218,13 @@ class Favorite(models.Model):
 
 
 class ShoppingList(models.Model):
+    """
+    Модель для списка покупок.
+
+    Связывает пользователя и рецепт, позволяет хранить информацию
+    о добавлении в список покупок рецепта.
+    """
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

@@ -8,6 +8,7 @@ from rest_framework.status import (
     HTTP_204_NO_CONTENT,
     HTTP_200_OK
 )
+
 from djoser.views import UserViewSet
 
 from .models import User, Follow
@@ -16,6 +17,10 @@ from api.pagination import CustomListPagination
 
 
 class CustomUserViewSet(UserViewSet):
+    """
+    Вьюсет для объектов модели User.
+    """
+
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = CustomListPagination
@@ -26,6 +31,10 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id):
+        """
+        Добавляет эндпоинт для подписки subscribe.
+        """
+
         user = request.user
         author = User.objects.get(id=id)
 
@@ -70,6 +79,10 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
+        """
+        Добавляет эндпоинт для списка подписчиков subscriptions.
+        """
+
         user = request.user
         authors = User.objects.filter(following__user=user)
         pages = self.paginate_queryset(authors)
@@ -89,19 +102,3 @@ class CustomUserViewSet(UserViewSet):
         )
 
         return Response(serializer.data, status=HTTP_200_OK)
-
-    def get_serializer_context(self):
-
-        result = {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        }
-
-        user = self.request.user
-
-        if user.is_authenticated:
-            following = User.objects.filter(following__user=user)
-            result['following'] = following
-
-        return result

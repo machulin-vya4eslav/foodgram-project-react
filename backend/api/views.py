@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -5,12 +6,11 @@ from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT
 )
-from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from django_filters.rest_framework import DjangoFilterBackend
 
-from recipes.models import Recipe, Tag, Favorite, ShoppingList, Ingredient
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingList, Tag
 from .serializers import (
     RecipeWriteSerializer,
     TagSerializer,
@@ -24,12 +24,20 @@ from .filters import IngredientListFilter, RecipeListFilter
 
 
 class TagViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет для работы с объектами модели Tag.
+    """
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет для работы с объектами модели Ingredient.
+    """
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly, )
@@ -38,6 +46,10 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет для работы с объектами модели Recipe.
+    """
+
     queryset = Recipe.objects.all()
     serializer_class = RecipeWriteSerializer
     pagination_class = CustomListPagination
@@ -46,68 +58,72 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeListFilter
 
     def get_serializer_class(self):
+        """
+        Метод, выбирающий сериализатор в записимости от типа запроса.
+
+        Для безопасных запросов - RecipeReadSerializer
+        Для не безопасных - RecipeWriteSerializer.
+        """
+
         if self.request.method in SAFE_METHODS:
             return RecipeReadSerializer
         return RecipeWriteSerializer
 
     def perform_create(self, serializer):
+        """
+        Метод, добавляющий в сериализитор автора поста.
+        """
+
         serializer.save(author=self.request.user)
 
-    @action(methods=['post', 'delete'], detail=True)
-    def favorite(self, request, pk):
+    def _favorite_or_shopping_cart(self, request, pk, model):
+        """
+        Метод, добавляющий эндпоинт favorite.
+        """
+
         user = request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+
         if request.method == 'POST':
 
-            if Favorite.objects.filter(user=user, recipe__id=pk).exists():
+            _, is_created = model.objects.get_or_create(
+                user=user,
+                recipe=recipe
+            )
+
+            if not is_created:
                 return Response(
                     {'error': 'Рецепт уже есть в избранном'},
                     status=HTTP_400_BAD_REQUEST
                 )
 
-            recipe = get_object_or_404(Recipe, id=pk)
-            Favorite.objects.create(recipe=recipe, user=user)
             serializer = ShortRecipeSerializer(recipe)
 
             return Response(serializer.data, status=HTTP_201_CREATED)
 
-        if request.method == 'DELETE':
+        obj = model.objects.filter(user=user, recipe__id=pk)
 
-            obj = Favorite.objects.filter(user=user, recipe__id=pk)
+        if not obj.exists():
+            return Response(
+                {'error': 'Рецепт не в избранном, нечего удалять'},
+                status=HTTP_400_BAD_REQUEST
+            )
+        obj.delete()
 
-            if not obj.exists():
-                return Response(
-                    {'error': 'Рецепт не в избранном, нечего удалять'},
-                    status=HTTP_400_BAD_REQUEST
-                )
+        return Response(status=HTTP_204_NO_CONTENT)
 
-            obj.delete()
-            return Response(status=HTTP_204_NO_CONTENT)
+    @action(methods=['post', 'delete'], detail=True)
+    def favorite(self, request, pk):
+        """
+        Метод, добавляющий эндпоинт favorite.
+        """
+
+        return self._favorite_or_shopping_cart(request, pk, Favorite)
 
     @action(methods=['post', 'delete'], detail=True)
     def shopping_cart(self, request, pk):
-        user = request.user
-        if request.method == 'POST':
+        """
+        Метод, добавляющий эндпоинт shopping_cart.
+        """
 
-            if ShoppingList.objects.filter(user=user, recipe__id=pk).exists():
-                return Response(
-                    {'error': 'Рецепт уже есть в списке покупок'},
-                    status=HTTP_400_BAD_REQUEST
-                )
-
-            recipe = get_object_or_404(Recipe, id=pk)
-            ShoppingList.objects.create(recipe=recipe, user=user)
-            serializer = ShortRecipeSerializer(recipe)
-
-            return Response(serializer.data, status=HTTP_201_CREATED)
-
-        if request.method == 'DELETE':
-            obj = ShoppingList.objects.filter(user=user, recipe__id=pk)
-
-            if not obj.exists():
-                return Response(
-                    {'error': 'Рецепт не добавлен в покупки, нечего удалять'},
-                    status=HTTP_400_BAD_REQUEST
-                )
-
-            obj.delete()
-            return Response(status=HTTP_204_NO_CONTENT)
+        return self._favorite_or_shopping_cart(request, pk, ShoppingList)
