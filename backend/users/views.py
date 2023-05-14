@@ -1,4 +1,3 @@
-
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -45,33 +44,31 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == 'POST':
 
-            if Follow.objects.filter(user=user, author=author).exists():
+            _, is_created = Follow.objects.get_or_create(
+                user=user,
+                author=author
+            )
+
+            if not is_created:
                 return Response(
                     {'error': 'Вы уже подписаны на этого автора'},
-                    status=HTTP_400_BAD_REQUEST)
+                    status=HTTP_400_BAD_REQUEST
+                )
 
-            Follow.objects.create(user=user, author=author)
             serializer = SubscribeSirializer(
                 author, context={"request": request}
             )
 
+            return Response(serializer.data, status=HTTP_201_CREATED)
+
+        obj = Follow.objects.filter(user=user, author=author)
+        if not obj.exists():
             return Response(
-                serializer.data,
-                status=HTTP_201_CREATED
-            )
+                {'error': 'Вы не подписаны на этого автора'},
+                status=HTTP_400_BAD_REQUEST)
+        obj.delete()
 
-        if request.method == 'DELETE':
-
-            obj = Follow.objects.filter(user=user, author=author)
-
-            if not obj.exists():
-                return Response(
-                    {'error': 'Вы не подписаны на этого автора'},
-                    status=HTTP_400_BAD_REQUEST)
-
-            obj.delete()
-
-            return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_204_NO_CONTENT)
 
     @action(
             methods=['get'],
