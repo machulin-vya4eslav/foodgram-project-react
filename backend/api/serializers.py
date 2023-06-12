@@ -166,8 +166,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 )
             if amount < MIN_AMOUNT_INGREDIENTS:
                 raise ValidationError(
-                    {'ingredients': f'Ингредиентов не должно '
-                                    f'быть меньше {MIN_AMOUNT_INGREDIENTS}'}
+                    {
+                        'ingredients':
+                        f'Ингредиентов не должно '
+                        f'быть меньше {MIN_AMOUNT_INGREDIENTS}'
+                    }
                 )
             if id_obj in ingredients_list:
                 raise ValidationError({
@@ -241,7 +244,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """
-        Метод, отвечающий за форматотображение объекта Ingredient.
+        Метод, отвечающий за формат отображение объекта Ingredient.
         """
         request = self.context.get('request')
         return RecipeReadSerializer(
