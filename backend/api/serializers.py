@@ -302,7 +302,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         """
 
         user = self.context.get('request').user
-        return self._get_is(obj, user.favorites)
+        return not user.is_authenticated or self._get_is(obj, user.favorites)
 
     def get_is_in_shopping_cart(self, obj):
         """
@@ -310,7 +310,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         """
 
         user = self.context.get('request').user
-        return self._get_is(obj, user.shopping_list)
+        return (
+            not user.is_authenticated or
+            self._get_is(obj, user.shopping_list)
+        )
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):

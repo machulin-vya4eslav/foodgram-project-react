@@ -73,7 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         Метод, выбирающий сериализатор в записимости от типа запроса.
 
         Для безопасных запросов - RecipeReadSerializer
-        Для не безопасных - RecipeWriteSerializer.
+        Для небезопасных - RecipeWriteSerializer.
         """
 
         if self.request.method in SAFE_METHODS:
