@@ -8,7 +8,7 @@ class UserAdmin(admin.ModelAdmin):
     Настройки обображения в админке объектов User.
     """
 
-    list_display = ('pk', 'first_name', 'last_name', 'username', 'email') 
+    list_display = ('pk', 'first_name', 'last_name', 'username', 'email')
     list_filter = ('username', 'email')
     empty_value_display = '-пусто-'
 

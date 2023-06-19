@@ -69,8 +69,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
 
         return (
-            user.is_authenticated and
-            user.follower.filter(author=obj).exists()
+            user.is_authenticated
+            and user.follower.filter(author=obj).exists()
         )
 
 
@@ -292,8 +292,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
 
         return (
-            user.is_authenticated and
-            user_related_name.filter(recipe=obj).exists()
+            user.is_authenticated
+            and user_related_name.filter(recipe=obj).exists()
         )
 
     def get_is_favorited(self, obj):
@@ -311,8 +311,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
         user = self.context.get('request').user
         return (
-            not user.is_authenticated or
-            self._get_is(obj, user.shopping_list)
+            not user.is_authenticated
+            or self._get_is(obj, user.shopping_list)
         )
 
 
@@ -363,8 +363,8 @@ class SubscribeSirializer(serializers.ModelSerializer):
         user = self.context.get('request').user
 
         return (
-            user.is_authenticated and
-            user.follower.filter(author=obj).exists()
+            user.is_authenticated
+            and user.follower.filter(author=obj).exists()
         )
 
     def get_recipes_count(self, obj):

@@ -5,9 +5,9 @@ from recipes.models import Ingredient, Recipe, Tag
 
 class IngredientListFilter(FilterSet):
     """
-    Фильтр для ингредиентов. 
+    Фильтр для ингредиентов.
 
-    Ищет по начальному вхождению в поле name.    
+    Ищет по начальному вхождению в поле name.
     """
 
     name = filters.CharFilter(lookup_expr='startswith')
@@ -21,7 +21,7 @@ class RecipeListFilter(FilterSet):
     """
     Фильтр для рецептов.
 
-    Ищет по slug можеди Tag, а также по вхождению или 
+    Ищет по slug можеди Tag, а также по вхождению или
     невхождению в список покупок и список избранного
     """
 

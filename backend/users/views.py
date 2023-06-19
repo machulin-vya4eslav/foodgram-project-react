@@ -25,9 +25,9 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = CustomListPagination
 
     @action(
-            methods=['post', 'delete'],
-            detail=True,
-            permission_classes=[IsAuthenticated]
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id):
         """
@@ -71,9 +71,9 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=HTTP_204_NO_CONTENT)
 
     @action(
-            methods=['get'],
-            detail=False,
-            permission_classes=[IsAuthenticated]
+        methods=['get'],
+        detail=False,
+        permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
         """
