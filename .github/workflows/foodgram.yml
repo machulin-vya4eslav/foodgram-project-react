@@ -84,7 +84,7 @@ jobs:
             cd dev/foodgram/infra 
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-frontend:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
-            sudo docker-compose stops
+            sudo docker-compose stop
             sudo docker-compose rm -f backend
             rm -f .env
             touch .env
