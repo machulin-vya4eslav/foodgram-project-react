@@ -81,7 +81,7 @@ class CustomUserViewSet(UserViewSet):
         """
 
         user = request.user
-        authors = User.objects.filter(following__user=user)
+        authors = user.follower.all()
         pages = self.paginate_queryset(authors)
 
         # if pages:
