@@ -35,7 +35,7 @@ class RecipeAdmin(admin.ModelAdmin):
     Настройки обображения в админке объектов Recipe.
     """
 
-    list_display = ('name', 'author', 'added_in_favorites',)
+    list_display = ('name', 'author', 'tags', 'added_in_favorites',)
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
     search_fields = ('author', 'name', 'tags',)
