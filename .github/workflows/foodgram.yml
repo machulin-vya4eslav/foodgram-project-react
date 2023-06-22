@@ -82,12 +82,10 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd dev/foodgram/infra
-            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram-frontend:latest
-            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-frontend:latest
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
             sudo docker-compose stop
             sudo docker-compose rm -f backend
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram-frontend:latest
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
             rm -f .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
@@ -98,6 +96,8 @@ jobs:
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
             echo DEBUG=${{ secrets.DEBUG }} >> .env
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-frontend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
             sudo docker-compose up -d --build
 
   send_message:
