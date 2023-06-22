@@ -18,6 +18,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
     list_display = ('name', 'measurement_unit',)
     list_filter = ('name',)
+    search_fields = ('name',)
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -26,6 +27,7 @@ class TagAdmin(admin.ModelAdmin):
     """
 
     list_display = ('name', 'color', 'slug',)
+    search_fields = ('name', 'color', 'slug',)
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -36,6 +38,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'added_in_favorites',)
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
+    search_fields = ('author', 'name', 'tags',)
 
     @display(description='Количество в избранных')
     def added_in_favorites(self, obj):

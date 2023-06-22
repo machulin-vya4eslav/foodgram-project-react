@@ -10,6 +10,7 @@ class UserAdmin(admin.ModelAdmin):
 
     list_display = ('pk', 'first_name', 'last_name', 'username', 'email')
     list_filter = ('username', 'email')
+    search_fields = ('first_name', 'last_name', 'username', 'email')
     empty_value_display = '-пусто-'
 
 
