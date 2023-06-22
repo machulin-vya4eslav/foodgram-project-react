@@ -80,7 +80,7 @@ class CustomUserViewSet(UserViewSet):
         """
 
         user = request.user
-        authors = User.objects.filter(followingasdsadas__user=user)
+        authors = User.objects.filter(following__user=user)
         pages = self.paginate_queryset(authors)
 
         serializer = SubscribeSirializer(
