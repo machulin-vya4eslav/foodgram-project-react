@@ -4,8 +4,7 @@ from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_201_CREATED,
-    HTTP_204_NO_CONTENT,
-    # HTTP_200_OK
+    HTTP_204_NO_CONTENT
 )
 
 from djoser.views import UserViewSet
@@ -81,21 +80,12 @@ class CustomUserViewSet(UserViewSet):
         """
 
         user = request.user
-        authors = User.objects.filter(following__user=user)
+        authors = User.objects.filter(followingasdsadas__user=user)
         pages = self.paginate_queryset(authors)
 
-        # if pages:
         serializer = SubscribeSirializer(
             pages,
             many=True,
             context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
-
-        # serializer = SubscribeSirializer(
-        #     authors,
-        #     many=True,
-        #     context={'request': request}
-        # )
-
-        # return Response(serializer.data, status=HTTP_200_OK)
