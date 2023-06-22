@@ -10,7 +10,7 @@ class IngredientListFilter(FilterSet):
     Ищет по начальному вхождению в поле name.
     """
 
-    name = filters.CharFilter(lookup_expr='startswith')
+    name = filters.CharFilter(lookup_expr='istartswith')
 
     class Meta:
         model = Ingredient
