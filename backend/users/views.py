@@ -84,18 +84,18 @@ class CustomUserViewSet(UserViewSet):
         authors = User.objects.filter(following__user=user)
         pages = self.paginate_queryset(authors)
 
-        if pages:
-            serializer = SubscribeSirializer(
-                pages,
-                many=True,
-                context={'request': request}
-            )
-            return self.get_paginated_response(serializer.data)
-
+        # if pages:
         serializer = SubscribeSirializer(
-            authors,
+            pages,
             many=True,
             context={'request': request}
         )
+        return self.get_paginated_response(serializer.data)
 
-        return Response(serializer.data, status=HTTP_200_OK)
+        # serializer = SubscribeSirializer(
+        #     authors,
+        #     many=True,
+        #     context={'request': request}
+        # )
+
+        # return Response(serializer.data, status=HTTP_200_OK)
